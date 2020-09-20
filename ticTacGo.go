@@ -53,35 +53,6 @@ func startGame(choice int) bool {
 	return endMenu()
 }
 
-func playAIGame(board [9]int, choice int) {
-	player := rand.Intn(2) + 1
-
-	if player == 1 {
-		fmt.Println("\nPlayer starts first!")
-	} else {
-		fmt.Println("\nComputer starts first!")
-	}
-
-	if choice == 1 {
-		playEasy(board, player)
-	} else {
-		playHard(board, player)
-	}
-}
-
-func easyAITurn(board [9]int) [9]int {
-	aiMove := rand.Intn(9)
-	for {
-		if board[aiMove] != 0 {
-			aiMove = rand.Intn(9)
-		} else {
-			break
-		}
-	}
-	board[aiMove] = 1
-	return board
-}
-
 func playManualGame(board [9]int) {
 	for turn := 0; turn < 9; turn++ {
 		if analyzeBoard(board) != 0 || turn >= 9 {
@@ -113,60 +84,21 @@ func playManualGame(board [9]int) {
 	}
 }
 
-func analyzeBoard(board [9]int) int {
-	wins := [8][3]int{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}}
-	for i := 0; i < 8; i++ {
-		if board[wins[i][0]] != 0 &&
-			board[wins[i][0]] == board[wins[i][1]] &&
-			board[wins[i][0]] == board[wins[i][2]] {
-			return board[wins[i][2]]
-		}
-	}
-	return 0
-}
+func playAIGame(board [9]int, choice int) {
+	player := rand.Intn(2) + 1
 
-func minimax(board [9]int, player int) int {
-	winner := analyzeBoard(board)
-	if winner != 0 {
-		return winner * player
+	if player == 1 {
+		fmt.Println("\nPlayer starts first!")
+	} else {
+		fmt.Println("\nComputer starts first!")
 	}
 
-	move := -1
-	score := -2
+	if choice == 1 {
+		playEasy(board, player)
+	} else {
+		playHard(board, player)
+	}
 
-	for i := 0; i < 9; i++ {
-		if board[i] == 0 {
-			board[i] = player
-			thisScore := -minimax(board, player*(-1))
-			if thisScore > score {
-				score = thisScore
-				move = i
-			}
-			board[i] = 0
-		}
-	}
-	if move == -1 {
-		return 0
-	}
-	return score
-}
-
-func hardAITurn(board [9]int) [9]int {
-	move := -1
-	score := -2
-	for i := 0; i < 9; i++ {
-		if board[i] == 0 {
-			board[i] = 1
-			tempScore := -minimax(board, -1)
-			board[i] = 0
-			if tempScore > score {
-				score = tempScore
-				move = i
-			}
-		}
-	}
-	board[move] = 1
-	return board
 }
 
 func human1Turn(board [9]int) [9]int {
@@ -211,6 +143,75 @@ func human2Turn(board [9]int) [9]int {
 	return board
 }
 
+func easyAITurn(board [9]int) [9]int {
+	aiMove := rand.Intn(9)
+	for {
+		if board[aiMove] != 0 {
+			aiMove = rand.Intn(9)
+		} else {
+			break
+		}
+	}
+	board[aiMove] = 1
+	return board
+}
+
+func hardAITurn(board [9]int) [9]int {
+	move := -1
+	score := -2
+	for i := 0; i < 9; i++ {
+		if board[i] == 0 {
+			board[i] = 1
+			tempScore := -minimax(board, -1)
+			board[i] = 0
+			if tempScore > score {
+				score = tempScore
+				move = i
+			}
+		}
+	}
+	board[move] = 1
+	return board
+}
+
+func analyzeBoard(board [9]int) int {
+	wins := [8][3]int{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}}
+	for i := 0; i < 8; i++ {
+		if board[wins[i][0]] != 0 &&
+			board[wins[i][0]] == board[wins[i][1]] &&
+			board[wins[i][0]] == board[wins[i][2]] {
+			return board[wins[i][2]]
+		}
+	}
+	return 0
+}
+
+func minimax(board [9]int, player int) int {
+	winner := analyzeBoard(board)
+	if winner != 0 {
+		return winner * player
+	}
+
+	move := -1
+	score := -2
+
+	for i := 0; i < 9; i++ {
+		if board[i] == 0 {
+			board[i] = player
+			thisScore := -minimax(board, player*(-1))
+			if thisScore > score {
+				score = thisScore
+				move = i
+			}
+			board[i] = 0
+		}
+	}
+	if move == -1 {
+		return 0
+	}
+	return score
+}
+
 func playEasy(board [9]int, player int) {
 	for turn := 0; turn < 9; turn++ {
 		if analyzeBoard(board) != 0 || turn >= 9 {
@@ -225,19 +226,7 @@ func playEasy(board [9]int, player int) {
 		}
 	}
 
-	printBoard(board)
-	switch analyzeBoard(board) {
-	case 0:
-		fmt.Println("\nThe game's a tie! How boring.")
-		break
-	case 1:
-		printBoard(board)
-		fmt.Println("\nComputer wins!")
-		break
-	case -1:
-		fmt.Println("\nHuman wins!")
-		break
-	}
+	endPrint(board)
 }
 
 func playHard(board [9]int, player int) {
@@ -254,6 +243,10 @@ func playHard(board [9]int, player int) {
 		}
 	}
 
+	endPrint(board)
+}
+
+func endPrint(board [9]int) {
 	printBoard(board)
 	switch analyzeBoard(board) {
 	case 0:
@@ -267,7 +260,6 @@ func playHard(board [9]int, player int) {
 		fmt.Println("\nHuman wins!")
 		break
 	}
-
 }
 
 func boardSym(i int) string {
