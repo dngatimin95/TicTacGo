@@ -5,12 +5,13 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"time"
 )
 
 func startMenu() int {
 	for {
 		fmt.Println("\nPlease select a numerical choice from below:")
-		fmt.Println("1. Play Tic-Tac-Go vs Easy AI \n2. Play Tic-Tac-Go vs Hard AI <Still WIP> \n3. Play Tic-Tac-Go vs Another Player \n4. Exit\n")
+		fmt.Println("1. Play Tic-Tac-Go vs Easy AI \n2. Play Tic-Tac-Go vs Hard AI \n3. Play Tic-Tac-Go vs Another Player \n4. Exit\n")
 		var choice int
 		fmt.Scanln(&choice)
 
@@ -53,9 +54,6 @@ func startGame(choice int) bool {
 }
 
 func playAIGame(board [9]int, choice int) {
-	turn := 1
-	stopGame := false
-	ai := true
 	player := rand.Intn(2) + 1
 
 	if player == 1 {
@@ -64,203 +62,232 @@ func playAIGame(board [9]int, choice int) {
 		fmt.Println("\nComputer starts first!")
 	}
 
-	if choice == 1 { //easyAI
-		if player == 1 { //human first
-			for stopGame != true {
-				player = 1
-				printBoard(board)
-				turn, stopGame, board = humanTurn(turn, stopGame, player, board, ai)
-
-				if stopGame == true {
-					break
-				}
-
-				player = 2
-				turn, stopGame, board = easyAITurn(turn, stopGame, player, board)
-			}
-		} else { //Ai first
-			for stopGame != true {
-				player = 1
-				turn, stopGame, board = easyAITurn(turn, stopGame, player, board)
-
-				if stopGame == true {
-					break
-				}
-				printBoard(board)
-
-				player = 2
-				turn, stopGame, board = humanTurn(turn, stopGame, player, board, ai)
-			}
-		}
-	} else { //hardAI
-		goPlay(board, player)
-	}
-	printBoard(board)
-}
-
-func humanTurn(turn int, stopGame bool, player int, board [9]int, ai bool) (int, bool, [9]int) {
-	move := userInput()
-	if move == 0 {
-		fmt.Println("Thanks for playing! Goodbye")
-		os.Exit(0)
-	}
-	board = executeInput(move-1, player, board)
-	res := checkWin(board)
-
-	if ai == true {
-		if player == res {
-			fmt.Println("\nHuman wins!")
-			stopGame = true
-		} else if res > 0 {
-			fmt.Println("\nComputer wins!")
-			stopGame = true
-		} else if turn >= 9 {
-			fmt.Println("\nThe game's a tie! How boring.")
-			stopGame = true
-		} else {
-			turn++
-		}
-	} else if res > 0 {
-		fmt.Println("\nPlayer", res, "wins!")
-		stopGame = true
-	} else if turn >= 9 {
-		fmt.Println("\nThe game's a tie! How boring.")
-		stopGame = true
+	if choice == 1 {
+		playEasy(board, player)
 	} else {
-		turn++
+		playHard(board, player)
 	}
-
-	return turn, stopGame, board
 }
 
-func easyAITurn(turn int, stopGame bool, player int, board [9]int) (int, bool, [9]int) {
+func easyAITurn(board [9]int) [9]int {
 	aiMove := rand.Intn(9)
-	occupied := false
-	for occupied != true {
+	for {
 		if board[aiMove] != 0 {
 			aiMove = rand.Intn(9)
 		} else {
-			occupied = true
+			break
 		}
 	}
-
-	if player == 1 {
-		board[aiMove] = 1
-	} else if player == 2 {
-		board[aiMove] = 5
-	}
-	res := checkWin(board)
-
-	if player == res {
-		fmt.Println("\nComputer wins!")
-		stopGame = true
-	} else if res > 0 {
-		fmt.Println("\nHuman wins!")
-		stopGame = true
-	} else if turn >= 9 {
-		fmt.Println("\nThe game's a tie! How boring.")
-		stopGame = true
-	} else {
-		turn++
-	}
-	return turn, stopGame, board
-}
-
-func playManualGame(board [9]int) {
-	var player int
-	turn := 1
-	stopGame := false
-	ai := false
-
-	for stopGame != true {
-		printBoard(board)
-		if turn%2 == 1 {
-			fmt.Println("Player 1's turn.")
-			player = 1
-		} else {
-			fmt.Println("Player 2's turn.")
-			player = 2
-		}
-
-		turn, stopGame, board = humanTurn(turn, stopGame, player, board, ai)
-	}
-	printBoard(board)
-}
-
-func userInput() int {
-	var move int
-	fmt.Println("Please refer to the legend and select a spot on the board. Otherwise, select 0 to quit:")
-	printLegend()
-
-	for {
-		fmt.Scanln(&move)
-		if move >= 0 && move < 10 {
-			return move
-		} else {
-			fmt.Println("Invalid choice. Please try again")
-		}
-	}
-}
-
-func executeInput(move int, player int, board [9]int) [9]int {
-	if board[move] != 0 {
-		fmt.Println("This space is occupied. Try again.")
-		move = userInput()
-		if move == 0 {
-			fmt.Println("Thanks for playing! Goodbye")
-			os.Exit(0)
-		}
-		board = executeInput(move-1, player, board)
-	} else {
-		if player == 1 {
-			board[move] = 1
-		} else if player == 2 {
-			board[move] = 5
-		}
-	}
+	board[aiMove] = 1
 	return board
 }
 
-func checkWin(board [9]int) int {
-	var x [8]int
-	x[0] = board[0] + board[3] + board[6]
-	x[1] = board[1] + board[4] + board[7]
-	x[2] = board[2] + board[5] + board[8]
-	x[3] = board[0] + board[1] + board[2]
-	x[4] = board[3] + board[4] + board[5]
-	x[5] = board[6] + board[7] + board[8]
-	x[6] = board[0] + board[4] + board[8]
-	x[7] = board[2] + board[4] + board[6]
+func playManualGame(board [9]int) {
+	for turn := 0; turn < 9; turn++ {
+		if analyzeBoard(board) != 0 || turn >= 9 {
+			break
+		}
+		if ((turn) % 2) == 0 {
+			printBoard(board)
+			fmt.Println("Player 1's turn.")
+			board = human1Turn(board)
+		} else {
+			printBoard(board)
+			fmt.Println("Player 2's turn.")
+			board = human2Turn(board)
+		}
+	}
 
-	for _, v := range x {
-		if v == 3 {
-			return 1
-		} else if v == 15 {
-			return 2
+	printBoard(board)
+	switch analyzeBoard(board) {
+	case 0:
+		fmt.Println("\nThe game's a tie! How boring.")
+		break
+	case 1:
+		printBoard(board)
+		fmt.Println("\nPlayer 2 wins!")
+		break
+	case -1:
+		fmt.Println("\nPlayer 1 wins!")
+		break
+	}
+}
+
+func analyzeBoard(board [9]int) int {
+	wins := [8][3]int{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}}
+	for i := 0; i < 8; i++ {
+		if board[wins[i][0]] != 0 &&
+			board[wins[i][0]] == board[wins[i][1]] &&
+			board[wins[i][0]] == board[wins[i][2]] {
+			return board[wins[i][2]]
 		}
 	}
 	return 0
 }
 
-func printBoard(board [9]int) {
-	var display [9]string
+func minimax(board [9]int, player int) int {
+	winner := analyzeBoard(board)
+	if winner != 0 {
+		return winner * player
+	}
 
-	for i := 0; i < len(board); i++ {
-		switch board[i] {
-		case 0:
-			display[i] = " "
-		case 1:
-			display[i] = "X"
-		case 5:
-			display[i] = "O"
+	move := -1
+	score := -2
+
+	for i := 0; i < 9; i++ {
+		if board[i] == 0 {
+			board[i] = player
+			thisScore := -minimax(board, player*(-1))
+			if thisScore > score {
+				score = thisScore
+				move = i
+			}
+			board[i] = 0
+		}
+	}
+	if move == -1 {
+		return 0
+	}
+	return score
+}
+
+func hardAITurn(board [9]int) [9]int {
+	move := -1
+	score := -2
+	for i := 0; i < 9; i++ {
+		if board[i] == 0 {
+			board[i] = 1
+			tempScore := -minimax(board, -1)
+			board[i] = 0
+			if tempScore > score {
+				score = tempScore
+				move = i
+			}
+		}
+	}
+	board[move] = 1
+	return board
+}
+
+func human1Turn(board [9]int) [9]int {
+	move := 0
+	fmt.Println("Please refer to the legend and select a spot on the board. Otherwise, select 0 to quit:")
+	printLegend()
+
+	for {
+		fmt.Scanln(&move)
+		if move >= 0 && move < 10 && board[move-1] == 0 {
+			if move == 0 {
+				fmt.Println("Thanks for playing! Goodbye")
+				os.Exit(0)
+			}
+			board[move-1] = -1
+			break
+		} else {
+			fmt.Println("Invalid choice. Please try again")
+		}
+	}
+	return board
+}
+
+func human2Turn(board [9]int) [9]int {
+	move := 0
+	fmt.Println("Please refer to the legend and select a spot on the board. Otherwise, select 0 to quit:")
+	printLegend()
+
+	for {
+		fmt.Scanln(&move)
+		if move >= 0 && move < 10 && board[move-1] == 0 {
+			if move == 0 {
+				fmt.Println("Thanks for playing! Goodbye")
+				os.Exit(0)
+			}
+			board[move-1] = 1
+			break
+		} else {
+			fmt.Println("Invalid choice. Please try again")
+		}
+	}
+	return board
+}
+
+func playEasy(board [9]int, player int) {
+	for turn := 0; turn < 9; turn++ {
+		if analyzeBoard(board) != 0 || turn >= 9 {
+			break
+		}
+		if ((turn + player) % 2) == 0 {
+			board = easyAITurn(board)
+			printBoard(board)
+		} else {
+			printBoard(board)
+			board = human1Turn(board)
 		}
 	}
 
+	printBoard(board)
+	switch analyzeBoard(board) {
+	case 0:
+		fmt.Println("\nThe game's a tie! How boring.")
+		break
+	case 1:
+		printBoard(board)
+		fmt.Println("\nComputer wins!")
+		break
+	case -1:
+		fmt.Println("\nHuman wins!")
+		break
+	}
+}
+
+func playHard(board [9]int, player int) {
+	for turn := 0; turn < 9; turn++ {
+		if analyzeBoard(board) != 0 || turn >= 9 {
+			break
+		}
+		if ((turn + player) % 2) == 0 {
+			board = hardAITurn(board)
+			printBoard(board)
+		} else {
+			printBoard(board)
+			board = human1Turn(board)
+		}
+	}
+
+	printBoard(board)
+	switch analyzeBoard(board) {
+	case 0:
+		fmt.Println("\nThe game's a tie! How boring.")
+		break
+	case 1:
+		printBoard(board)
+		fmt.Println("\nComputer wins!")
+		break
+	case -1:
+		fmt.Println("\nHuman wins!")
+		break
+	}
+
+}
+
+func boardSym(i int) string {
+	switch i {
+	case -1:
+		return "X"
+	case 0:
+		return " "
+	case 1:
+		return "O"
+	}
+	return ""
+}
+
+func printBoard(board [9]int) {
 	fmt.Println("\nThis is what the board looks like now:")
 	fmt.Println("-------------")
-	fmt.Println("|", display[0], "|", display[1], "|", display[2], "|", "\n-------------")
-	fmt.Println("|", display[3], "|", display[4], "|", display[5], "|", "\n-------------")
-	fmt.Println("|", display[6], "|", display[7], "|", display[8], "|", "\n-------------\n")
+	fmt.Println("|", boardSym(board[0]), "|", boardSym(board[1]), "|", boardSym(board[2]), "|", "\n-------------")
+	fmt.Println("|", boardSym(board[3]), "|", boardSym(board[4]), "|", boardSym(board[5]), "|", "\n-------------")
+	fmt.Println("|", boardSym(board[6]), "|", boardSym(board[7]), "|", boardSym(board[8]), "|", "\n-------------\n")
 }
 
 func printLegend() {
@@ -271,12 +298,13 @@ func printLegend() {
 }
 
 func main() {
-	//rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 	restart := true
 
 	for restart != false {
 		opt := startMenu()
 		if opt == 4 {
+			fmt.Println("Thanks for playing! Goodbye")
 			os.Exit(0)
 		} else {
 			restart = startGame(opt)
