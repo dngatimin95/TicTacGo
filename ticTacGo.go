@@ -219,7 +219,6 @@ func playEasy(board [9]int, player int) {
 		}
 		if ((turn + player) % 2) == 0 {
 			board = easyAITurn(board)
-			printBoard(board)
 		} else {
 			printBoard(board)
 			board = human1Turn(board)
@@ -236,7 +235,6 @@ func playHard(board [9]int, player int) {
 		}
 		if ((turn + player) % 2) == 0 {
 			board = hardAITurn(board)
-			printBoard(board)
 		} else {
 			printBoard(board)
 			board = human1Turn(board)
