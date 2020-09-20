@@ -55,7 +55,7 @@ func startGame(choice int) bool {
 
 func playManualGame(board [9]int) {
 	for turn := 0; turn < 9; turn++ {
-		if analyzeBoard(board) != 0 || turn >= 9 {
+		if checkBoard(board) != 0 || turn >= 9 {
 			break
 		}
 		if ((turn) % 2) == 0 {
@@ -70,7 +70,7 @@ func playManualGame(board [9]int) {
 	}
 
 	printBoard(board)
-	switch analyzeBoard(board) {
+	switch checkBoard(board) {
 	case 0:
 		fmt.Println("\nThe game's a tie! How boring.")
 		break
@@ -174,7 +174,7 @@ func hardAITurn(board [9]int) [9]int {
 	return board
 }
 
-func analyzeBoard(board [9]int) int {
+func checkBoard(board [9]int) int {
 	wins := [8][3]int{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}}
 	for i := 0; i < 8; i++ {
 		if board[wins[i][0]] != 0 &&
@@ -187,7 +187,7 @@ func analyzeBoard(board [9]int) int {
 }
 
 func minimax(board [9]int, player int) int {
-	winner := analyzeBoard(board)
+	winner := checkBoard(board)
 	if winner != 0 {
 		return winner * player
 	}
@@ -214,7 +214,7 @@ func minimax(board [9]int, player int) int {
 
 func playEasy(board [9]int, player int) {
 	for turn := 0; turn < 9; turn++ {
-		if analyzeBoard(board) != 0 || turn >= 9 {
+		if checkBoard(board) != 0 || turn >= 9 {
 			break
 		}
 		if ((turn + player) % 2) == 0 {
@@ -230,7 +230,7 @@ func playEasy(board [9]int, player int) {
 
 func playHard(board [9]int, player int) {
 	for turn := 0; turn < 9; turn++ {
-		if analyzeBoard(board) != 0 || turn >= 9 {
+		if checkBoard(board) != 0 || turn >= 9 {
 			break
 		}
 		if ((turn + player) % 2) == 0 {
@@ -246,7 +246,7 @@ func playHard(board [9]int, player int) {
 
 func endPrint(board [9]int) {
 	printBoard(board)
-	switch analyzeBoard(board) {
+	switch checkBoard(board) {
 	case 0:
 		fmt.Println("\nThe game's a tie! How boring.")
 		break
