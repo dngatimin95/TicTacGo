@@ -1,4 +1,4 @@
-# TicTacGo
+# Tic_Tac_Go
 Tic Tac Toe is a simple game that most of us grew up with. It is basically a game where two players take turns to complete three boxes either in a row, a column or a diagonal with X's or O's drawn within the boxes. This script allows users to play the game either with other users, with an easy AI or a harder AI. As this script was meant for me to practice coding in Go and to understand more about the language, it is not fully optimized and some parts may be redundant.
 
 ## So what does this repo do?
